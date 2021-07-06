@@ -2,16 +2,18 @@ import React, { useState } from 'react';
 
 import MoviesList from './components/MoviesList';
 import './App.css';
+import LoadingSpinner from './components/LoadingSpinner';
 
 function App() {
   const [movies, setMovies] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   const onFetchMoviesHandler = async function () {
     try {
+      setIsLoading(true);
       const res = await fetch('https://swapi.dev/api/films');
       const data = await res.json();
       if (!res.ok) throw new Error(`${data.message} (${res.status})`);
-      console.log(data.results);
       const transformedMovies = data.results.map((movie) => {
         return {
           id: movie.episode_id,
@@ -22,6 +24,7 @@ function App() {
       });
 
       setMovies(transformedMovies);
+      setIsLoading(false);
     } catch (err) {
       console.error(err);
     }
@@ -33,7 +36,8 @@ function App() {
         <button onClick={onFetchMoviesHandler}>Fetch Movies</button>
       </section>
       <section>
-        <MoviesList movies={movies} />
+        {!isLoading && movies.length > 0 && <MoviesList movies={movies} />}
+        {isLoading && <LoadingSpinner />}
       </section>
     </React.Fragment>
   );
